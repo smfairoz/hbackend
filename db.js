@@ -5,18 +5,23 @@ mongoose.connect("mongodb://localhost:27017/Homebuildup" ,{
 })
 
 const Account=mongoose.model('Account',{
-    id_no:Number,
+    // id_no:Number,
+    id_no:String,
     name:String,
     phone_No:Number,
     password:String,
-    r_id:Number,
-        eplan:String,
-        eaddress:String,
-        
+    enquire:[]
+
+ 
+
+
+
     
    
 
 })
 module.exports={
-    Account
+    Account,
+    // Enquire
+    
 }

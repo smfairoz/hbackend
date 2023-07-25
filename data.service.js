@@ -1,30 +1,31 @@
-const { text } = require("express");
+
 const jwt = require("jsonwebtoken");
 
 const db=require("./db")
 
-const register=(id_no,name,phone_No,password)=>{
+const register=(idno,uname,phone,pswd)=>{
     return db.Account.findOne({
-        id_no
+        id_no:idno
     
-    }).then(id=>{
-        console.log(id)
-
-        if(id){
+    }).then(idd=>{
+        console.log(idd)
+      
+        if(idd){
             return{
                 status:false,
-                message:"This id is already exist ! ..please login!!",
+                message:"This email-id is already exist ! ",
                 statusCode:404
             }
         }
         else{
+            
             let accnt=new db.Account({
-                id_no,
-                name,
-                phone_No,
-                password,
-               
-              
+                id_no:idno,
+                name:uname,
+                phone_No:phone,
+                password:pswd,
+                enquire: [],
+             
             })
             accnt.save()
             return{
@@ -36,22 +37,22 @@ const register=(id_no,name,phone_No,password)=>{
     })
 }
 
-const login = (id_no,password) =>{
+const login = (idno,pswd) =>{
     return db.Account.findOne({
-        id_no:id_no,
-        password:password,
+        id_no:idno,
+        password:pswd,
     }).then(res=>{
         if(res){
-            currentuser=res.name
-            currentidno=id_no
+            currentUser=res.name
+            currentidno=idno
             token=jwt.sign(
-                {currentidno:id_no},"secretsuperkey1234"
+                {currentidno: idno},"secretsuperkey1234"
             )
             return {
                 status:true,
                 message:"Login successfull",
                 statusCode:200,
-                currentuser,
+                currentUser,
                 currentidno,
                 token,
             }
@@ -66,43 +67,95 @@ const login = (id_no,password) =>{
     })
 }
 
-const enquirenow=(r_id,eplan,eaddress)=>{
- 
-    return db.Account.findOne({
-        r_id,
-    eplan,
-    eaddress
+const enquirenow=(phone, plan, address,id_no)=>{
+ console.log(id_no)
+//  console.log(req.)
+return db.Account.findOne({
+    id_no:id_no,
+    
+  
    
     }).then(res=>{
-        console.log(res)
-        if(res){
-           
-                return{
-                 status:false,
-                 message:"already exist",
-                 statusCode:404
-                }
+        // console.log(res)
+        // if(res){
+        //    if (res.id_no !=req.id_no){
+        //     return{
+        //         status:false,
+        //         message:"cannot be added",
+        //         statusCode:404
+        //     };
+        // }
+            if(res){  
+                console.log(res)
+                let enquireobject={
+                   
+                    phone,
+                    plan,
+                    address,
+                    id_no,
 
+                };
+                res.enquire.push(enquireobject);
+             res.save();
+            
+             return{
+                status:true,
+                message:"added successfully",
+                statusCode:200,
+             
+             
+            };
+        }
+
+
+    
+    else{
+        return{
+            status:false,
+            message:"please enter valid data",
+            statusCode:401,
+        };
+    }
+
+    
+    }).catch((err)=>console.log(err));
+};
+   
+const getenquire=(id_no)=>{
+    return db.Account.findOne({
+        id_no:id_no
+    }).then((res)=>{
+        if(res){
+            return{
+                status:true,
+                message:"success",
+                data:res.enquire,
+                statusCode:200,
             }
-            else{
-                let enqury=new db.Account({
-                    r_id,
-               eplan,
-               eaddress
-                  
-                })
-              
-                enqury.save()
-                return{
-                    status:true,
-                    message:"addedd successfull",
-                    statusCode:201
-                }
+        }
+        else{
+            return{
+                status:false,
+                message:"failed",
+                statusCode:400,
             }
-})
+        }
+    })
 }
+      
+           
+        
+     
+    
+
+
+
+       
+
+
 module.exports ={
     register,
     login,
     enquirenow,
+    getenquire,
 };
